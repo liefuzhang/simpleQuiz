@@ -1,12 +1,20 @@
 $(document).ready(function () {
-    if (window.location.search) {
-        var i = window.location.search.indexOf("=");
-        var name = window.location.search.substring(i+1);
-        $("h2").text("Welcome " + name);
+    var ca = document.cookie;
+    if (ca.indexOf("username=") === -1) {
+        location.href = 'index.html';
     }
+    var valStart = ca.indexOf("username=");
+    var valEnd = ca.search(/(;|$)/);
+    quiz.userName = ca.substring(valStart + "username=".length, valEnd);
+    $("h2").text("Welcome " + quiz.userName);
+
     start();
     $("#next").click(onNextClick);
     $("#back").click(onBackClick);
+    $("#logout").click(() => {
+        document.cookie = "username=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        location.href = 'index.html';
+    });
 });
 
 var quiz = {
@@ -29,7 +37,8 @@ var quiz = {
     ],
     score: 0,
     currentIndex: 0,
-    selectAnswers: []
+    selectAnswers: [],
+    userName: ""
 }
 
 function start() {
@@ -134,9 +143,42 @@ function showScore() {
             quiz.score++;
         }
     });
+    var usersArray = localStorage["users"];
+    var usersArrayObj = JSON.parse(usersArray ? usersArray : "[]");
+    if (Array.isArray(usersArrayObj) && usersArrayObj.length > 0) {
+        var existingUser = usersArrayObj.find((u) => {
+            return u.username === quiz.userName;
+        });
+        if (existingUser && existingUser.score < quiz.score) {
+            existingUser.score = quiz.score;
+            localStorage["users"] = JSON.stringify(usersArrayObj);
+        }
+    }
     $("#question").text("Final Score: " + quiz.score);
     $("#question").animate({
         opacity: 1
     }, 1000);
     $('button').hide();
+
+    var ranking = getRankingHtml();
+    $("#ranking").html(ranking);
+    $("#ranking").animate({
+        opacity: 1
+    }, 1000);
+}
+
+function getRankingHtml() {
+    var html = "<b>Ranking:</b>";
+    var usersArray = localStorage["users"];
+    var usersArrayObj = JSON.parse(usersArray ? usersArray : "[]");
+    if (Array.isArray(usersArrayObj) && usersArrayObj.length > 0) {
+        // sort by score
+        usersArrayObj.sort((a, b) => {
+            return Number(b.score) - Number(a.score);
+        })
+        usersArrayObj.forEach((user) => {
+            html += `<div>${user.username}:    ${user.score}</div>`;
+        });
+    }
+    return html;
 }

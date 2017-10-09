@@ -2,6 +2,12 @@ body {
     font-family: "Lucida Grande","Lucida Sans Unicode", Tahoma, Sans-Serif;        
 }
 
+#logout {
+    position:absolute;
+    top: 70px;
+    right: 190px;
+}
+
 #container {
     margin: 100px auto;
     width: 500px;
@@ -43,4 +49,11 @@ body {
 
 .unclickable{
     pointer-events: none;
+}
+
+#ranking {
+    position:relative ;
+    bottom: 50px;  
+    opacity: 0;
+    margin-left: 70px;
 }
