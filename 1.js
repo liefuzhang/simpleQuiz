@@ -7,38 +7,32 @@ $(document).ready(function () {
     var valEnd = ca.search(/(;|$)/);
     quiz.userName = ca.substring(valStart + "username=".length, valEnd);
     $("h2").text("Welcome " + quiz.userName);
-
-    start();
+    
     $("#next").click(onNextClick);
     $("#back").click(onBackClick);
     $("#logout").click(() => {
         document.cookie = "username=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
         location.href = 'index.html';
     });
+
+    loadQuestions(start);
 });
 
 var quiz = {
-    questions: [
-        {
-            question: "Who is Prime Minister of the United Kingdom?",
-            choices: ["David Cameron", "Gordon Brown", "Winston Churchill", "Tony Blair"],
-            correctAnswer: 0
-        },
-        {
-            question: "Who played Neo in The Matrix?",
-            choices: ["Tom Cruise", "Brad Pitt", "Keanu Reeves", "Will Smith"],
-            correctAnswer: 2
-        },
-        {
-            question: "What is the name of the director of the Lord of the Rings trilogy?",
-            choices: ["Steven Spielberg", "Peter Jackson", "Christopher Nolan"],
-            correctAnswer: 1
-        },
-    ],
+    questions: [],
     score: 0,
     currentIndex: 0,
     selectAnswers: [],
     userName: ""
+}
+
+function loadQuestions(success) {
+    $.getJSON("questions.json", function (json) {
+        quiz.questions = json;
+        if (success) {
+            success();
+        }
+    });
 }
 
 function start() {
@@ -58,7 +52,6 @@ function hideOptions(callback) {
     }, 1000, function () {
         callback();
     });
-
 }
 
 function showOptions(index) {
